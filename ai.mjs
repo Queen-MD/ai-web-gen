@@ -6,9 +6,15 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const genAI = new GoogleGenerativeAI("AIzaSyBbK3k2W8FR7weaxE9WwDIxhXKZT_uVr04");
+const apiKey = process.env.GOOGLE_API_KEY || "AIzaSyBbK3k2W8FR7weaxE9WwDIxhXKZT_uVr04";
+if (!apiKey) {
+  console.error("Error: GOOGLE_API_KEY environment variable is not set");
+  process.exit(1);
+}
+
+const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash-8b",
+  model: "gemini-2.0-flash",
   systemInstruction: sysPrompt
 });
 
