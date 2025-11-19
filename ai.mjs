@@ -7,7 +7,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const genAI = new GoogleGenerativeAI("AIzaSyBbK3k2W8FR7weaxE9WwDIxhXKZT_uVr04");
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: sysPrompt });
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash-8b",
+  systemInstruction: sysPrompt
+});
 
 const prompt = {
   contents: [
@@ -70,19 +73,7 @@ const prompt = {
               }`
         },
         {
-          text: `Use the ${fetchImage} function to fetch the appropriate image URL based on the user's prompt. 
-          **Guidelines:**
-          1. Analyze the user's prompt and extract a **single word** that best represents the key concept (e.g., "shoe," "hiking," "nature").
-          2. Generate the image URL by calling ${fetchImage} with this word.
-          3. Ensure the URL corresponds to an active image and is in the correct format, like:
-          "https://images.unsplash.com/photo-1618898909019-010e4e234c55?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2ODI3ODh8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MzMyNjYzMDV8&ixlib=rb-4.0.3&q=80&w=1080"
-          4. Only use image URLs that are **active**. Avoid any links that result in 404 errors. **Verify before using**.
-          5. Call ${fetchImage} **repeatedly** to generate different image URLs wherever image URLs are required in the project.
-          **Example:**
-          - User Prompt: "Sports shoes"
-          - Extracted keyword: "shoe"
-          - Use ${fetchImage('shoe')} to get the image URL.
-          **Important:** Ensure that all URLs are checked before usage to avoid broken links. This is ULTRA IMPORTANT for the functionality of the website.`
+          text: `Use Unsplash images where appropriate. Extract keywords from the user's prompt and use URLs in this format: https://images.unsplash.com/photo-[id]?w=800&q=80. Ensure all image URLs are valid and active.`
         },
         {
           text: `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${reactBasePrompt}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n\n  - .gitignore\n  - package-lock.json\n`,
@@ -121,8 +112,8 @@ cleanedResponse = cleanedResponse.replace(/"content":\s*`(.*?)`/g, (match, conte
   return `"content": ${JSON.stringify(content.trim())}`;
 });
 
-// Clean up the string to remove control characters (like newlines, tabs, etc.)
-cleanedResponse = cleanedResponse.replace(/[\x00-\x1F\x7F]/g, '');  // Remove control characters
+// Keep newlines and tabs but remove other control characters
+cleanedResponse = cleanedResponse.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
 
 let projectData;
 try {
